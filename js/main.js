@@ -6,6 +6,9 @@ var config = {
     height : window.innerHeight,
     physics: {
         default: 'arcade',
+        arcade: {
+            debug: true,
+        }
     }
 }
 
