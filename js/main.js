@@ -19,5 +19,6 @@ BubbleBurst.game.scene.add('MainMenu', BubbleBurst.MainMenu);
 BubbleBurst.game.scene.add('Game', BubbleBurst.Game);
 BubbleBurst.game.scene.add('Controls', BubbleBurst.Controls);
 BubbleBurst.game.scene.add('Story', BubbleBurst.Story);
+BubbleBurst.game.scene.add('Esc', BubbleBurst.Esc);
 
 BubbleBurst.game.scene.start('Preload');

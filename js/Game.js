@@ -219,6 +219,8 @@ BubbleBurst.Game.prototype = {
             }
         }, this);
 
+        
+        this.EscKey = this.input.keyboard.addKey('ESC');
          /////////////////////////////////////////////////////////////////////////////////////////
     },
 
@@ -234,7 +236,14 @@ BubbleBurst.Game.prototype = {
             }
             this.scene.start('MainMenu');
         }
-       
+
+        // Add event handler to ESC key
+        if (this.EscKey.isDown){
+            this.scene.launch('Esc');
+            this.scene.pause('Game');
+            this.EscKey.isDown = false;
+        }
+
         if (cursors.left.isDown){ 
             this.player.setVelocityX(-500);
         }
