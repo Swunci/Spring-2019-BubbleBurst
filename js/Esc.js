@@ -17,7 +17,7 @@ BubbleBurst.Esc.prototype = {
         .on('pointerdown', () => this.mainMenu())
 
         // back button
-        this.backButton = this.add.text(window.innerHeight/2, window.innerHeight/10 * 7, 'Back', styles)
+        this.backButton = this.add.text(window.innerWidth/2, window.innerHeight/10 * 7, 'Back', styles)
         .setInteractive()
         .setOrigin(0.5)
         .on('pointerdown', () => this.back())
