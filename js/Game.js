@@ -123,8 +123,11 @@ BubbleBurst.Game.prototype = {
         // Player stats and stuff
         this.player = this.physics.add.sprite(100, 450, 'player');
         this.player.setCollideWorldBounds(true);
-        this.player.health = 100;
+        this.fullHealth = 20;
+        this.player.health = this.fullHealth;
         this.player.invincible = false;
+        // add health bar
+        this.healthbar = this.physics.add.sprite(0,0,'healthbar');
 
         // Bubble stats and stuff
         this.bubbles_1 = this.physics.add.group({
@@ -221,6 +224,16 @@ BubbleBurst.Game.prototype = {
 
     update: function(){
         cursors = this.input.keyboard.createCursorKeys();
+
+        // the player is dead
+        if (this.player.health <= 0){
+            window.alert('DEAD, return to main menu after 3 seconds');
+            var now = new Date().getTime();
+            while ( new Date().getTime() < now + 3000 ){
+                // do nothing, wait for three seconds and return to main menu
+            }
+            this.scene.start('MainMenu');
+        }
        
         if (cursors.left.isDown){ 
             this.player.setVelocityX(-500);
@@ -249,7 +262,11 @@ BubbleBurst.Game.prototype = {
         //if (!player.invincible) {
             // If player is not invincible, do damage and make him invincible for 2 seconds
             player.health -= 1;
-            window.alert("player's health:" + this.player.health);
+            
+            // modify the health bar
+            this.healthbar.displayWidth = this.healthbar.width * player.health / this.fullHealth;
+
+
             this.toggleInvincible;
             // Add an delayed event that makes the player vulnerable after 2 seconds
             //this.time.events.add(2000, this.toggleInvincible, this);

@@ -21,7 +21,7 @@ BubbleBurst.Story.prototype = {
         text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2).setOrigin(0.5);
 
         // Back Button
-        this.backButton = this.add.text(window.innerWidth/2, 1200, 'Back', style2)
+        this.backButton = this.add.text(window.innerWidth/2, window.innerHeight-50, 'Back', style2)
         .setInteractive()
         .setOrigin(0.5)
         .on('pointerdown', () => this.scene.start('MainMenu'));
