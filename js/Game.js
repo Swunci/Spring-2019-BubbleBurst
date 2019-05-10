@@ -67,6 +67,7 @@ var Bullet = new Phaser.Class({
 
 ////////////////////////////////  End of Bullet class  ///////////////////////////////////
 
+
 BubbleBurst.Game.prototype = {
     create: function(){
 
@@ -118,33 +119,79 @@ BubbleBurst.Game.prototype = {
 
         /////////////////////////////////// Global variables ///////////////////////////////////////////
         //this.map = this.make.tilemap({ key: 'level1' });
-        this.physics.world.setBounds(0,0, window.innerWidth, window.innerHeight);
+        this.physics.world.setBounds(0,0, 1920 * 2, 1080 * 2);
+        this.cameras.main.setBounds(0,0, 1920 * 2, 1080 * 2);
+        this.add.image(0,0, 'bg').setOrigin(0);
+        this.add.image(1920, 0, 'bg').setOrigin(0);
+        this.add.image(0, 1080, 'bg').setOrigin(0);
+        this.add.image(1920, 1080, 'bg').setOrigin(0);
+
 
         // Player stats and stuff
-        this.player = this.physics.add.sprite(100, 450, 'player');
+    
+        this.player = this.physics.add.sprite(1920, 1080, 'player');
         this.player.setCollideWorldBounds(true);
         this.fullHealth = 20;
         this.player.health = this.fullHealth;
         this.player.invincible = false;
+
+
+        this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
         // add health bar
-        this.healthbar = this.physics.add.sprite(0,0,'healthbar');
+        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9), 'healthbar').setScrollFactor(0);
+        this.healthbar.setScrollFactor(0);
+        if (this.cameras.main.deadzone)
+        {
+            graphics = this.add.graphics().setScrollFactor(0);
+            graphics.lineStyle(2, 0x00ff00, 1);
+            graphics.strokeRect(200, 200, this.cameras.main.deadzone.width, this.cameras.main.deadzone.height);
+        }
 
         // Bubble stats and stuff
-        this.bubbles_1 = this.physics.add.group({
+        /*this.bubbles_1 = this.physics.add.group({
             key: 'bubble1',
             repeat: 15,
             setXY: {x:Phaser.Math.Between(0, window.innerWidth), y:Phaser.Math.Between(0, window.innerHeight)}
-        });
+        });*/
 
-        this.bubbles_1.children.iterate(function (child) {
+        /*this.bubbles_1.children.iterate(function (child) {
             child.setVelocity(Phaser.Math.Between(200, 400), Phaser.Math.Between(200, 400));
             child.setBounce(1).setCollideWorldBounds(true);
             child.setCircle(64, 0, 0);
-        });
+        });*/
+
+        this.bigBubbles = this.physics.add.group(
+            {
+                key: 'bubble1',
+                repeat: 10,
+            }
+        );
+        var rect = new Phaser.Geom.Rectangle(0, 0, 1920 * 2, 1080 * 2);
+
+        //  Randomly position the sprites within the rectangle
+        Phaser.Actions.RandomRectangle(this.bigBubbles.getChildren(), rect);
         
 
-        this.playerCollider = this.physics.add.collider(this.player, this.bubbles_1, this.collideBubble, null, this);
+        var counter = 0;
+        this.bigBubbles.children.iterate(function (child) {
+            if (counter % 4 == 0) {
+                child.setVelocity(500, 500);
+            }
+            else if (counter % 4 == 1) {
+                child.setVelocity(500, -500);
+            }
+            else if (counter % 4 == 2) {
+                child.setVelocity(-500, 500);
+            }
+            else {
+                child.setVelocity(-500, -500);
+            }
+            child.setBounce(1).setCollideWorldBounds(true);
+            child.setCircle(64, 0, 0);
+            counter++;
+        });
 
+        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBubble, null, this);
 
         // Create the bullets here
         this.playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
@@ -167,18 +214,20 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
+            
+            if (!this.player.invincible) {
+                // Get bullets and set direction 
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+                var direction = 'up';
 
-            // Get bullets and set direction 
-            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
-            var direction = 'up';
+                // Idk why bullet is a boolean
+                if (bullet) {
 
-            // Idk why bullet is a boolean
-            if (bullet) {
+                    bullet.fire(this.player, direction);
 
-                bullet.fire(this.player, direction);
-
-                // Add collision between bubbles and bullet and a callback function to handle what happens
-                this.physics.add.collider(this.bubbles_1, bullet, this.collideBullet);
+                    // Add collision between bubbles and bullet and a callback function to handle what happens
+                    this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
             }
         }, this);
 
@@ -186,12 +235,14 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
-            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
-            var direction = 'down';
-            if (bullet) {
-                bullet.rotation = 0;
-                bullet.fire(this.player, direction);
-                this.physics.add.collider(this.bubbles_1, bullet, this.collideBullet);
+            if (!this.player.invincible) {
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+                var direction = 'down';
+                if (bullet) {
+                    bullet.rotation = 0;
+                    bullet.fire(this.player, direction);
+                    this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
             }
         }, this);
 
@@ -199,11 +250,13 @@ BubbleBurst.Game.prototype = {
            if (this.player.active === false) {
             return;
             }
-            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
-            var direction = 'left';
-            if (bullet) {
-                bullet.fire(this.player, direction);
-                this.physics.add.collider(this.bubbles_1, bullet, this.collideBullet);
+            if (!this.player.invincible) {
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+                var direction = 'left';
+                if (bullet) {
+                    bullet.fire(this.player, direction);
+                    this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
             }
         }, this);
 
@@ -211,11 +264,13 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
-            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
-            var direction = 'right';
-            if (bullet) {
-                bullet.fire(this.player, direction);
-                this.physics.add.collider(this.bubbles_1, bullet, this.collideBullet);
+            if (!this.player.invincible) {
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+                var direction = 'right';
+                if (bullet) {
+                    bullet.fire(this.player, direction);
+                    this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
             }
         }, this);
 
@@ -265,32 +320,38 @@ BubbleBurst.Game.prototype = {
         }
     },
 
-    // Instead of making the player and bubbles collide, we should instead check if the player is overlapping with any bubbles
-    // Because when the collisions happen the bubbles no longer are moving in the intercardinal directions
-    collideBubble: function(player, bubble){
-        //if (!player.invincible) {
+    collideBubble: function(){
+        if (!this.player.invincible) {
             // If player is not invincible, do damage and make him invincible for 2 seconds
-            player.health -= 1;
+            this.player.health -= 1;
             
             // modify the health bar
-            this.healthbar.displayWidth = this.healthbar.width * player.health / this.fullHealth;
+            this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
 
-
-            this.toggleInvincible;
+            this.toggleInvincible();
             // Add an delayed event that makes the player vulnerable after 2 seconds
-            //this.time.events.add(2000, this.toggleInvincible, this);
-            this.timedEvent = this.time.delayedCall(2000, this.toggleInvincible, [], this);
-        //}
+            this.time.delayedCall(2000, this.toggleInvincible, [], this);
+        }
     },
 
-    toggleInvincible : function(collide) {
+    toggleInvincible : function() {
+        this.player.invincible = !this.player.invincible;
+        if (this.player.invincible) {
+            this.physics.world.removeCollider(this.playerCollider);
+        }
+        else {
+            this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBubble, null, this);
+        }
+    },
+
+    mortal : function() {
+        alert("2 secs passed");
         this.player.invincible = !this.player.invincible;
     },
 
     collideBullet: function(bubble, bullet){
-        // setActive and setVisible doesn't work no idea why, apparently it's the proper way to delete stuff in phaser 3
-        //bubble.setActive(false).setVisible(false);
-        //bullet.setActive(false).setVisible(false);
+        var x = bubble.x;
+        var y = bubble.y;
         bubble.destroy();
         bullet.destroy();
     }

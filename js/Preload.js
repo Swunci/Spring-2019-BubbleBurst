@@ -13,6 +13,7 @@ BubbleBurst.Preload.prototype = {
         this.load.image('bubble3', 'assets/images/bubble3.png');
         this.load.image('bullet', 'assets/images/bullet.png');
         this.load.image('healthbar', 'assets/images/healthbar.png');
+        this.load.image('bg', 'assets/images/testbg.png');
     },
     create: function(){
         this.scene.start('MainMenu');
