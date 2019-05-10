@@ -76,13 +76,10 @@ BubbleBurst.Game.prototype = {
             - Mechanics
             {
                 -When bullet collides with bubbles, need to split into 2 smaller bubbles
-                -Making player invincible for 2 seconds
                 -Add delay between player shooting
                 -Add delay for reloading
                 -Shrinking player when he takes damage
                 -Need to implement an overlap function instead of collision 
-                 because we don't want the bubbles to change directions when colliding with player
-                -Pausing game
             }
 
             - Graphics
@@ -104,7 +101,6 @@ BubbleBurst.Game.prototype = {
             - AI
             {
                 -Randomize the direction the two bubbles go when the larger bubble is popped
-                -Randomize the speed of each bubble
                 -Smallest bubbles go faster (random number between like 80(?)-100(?))
                 -Medium bubbles have speed between (60(?)-70(?))
                 -Big bubbles are the slowest (20-40)
@@ -113,11 +109,12 @@ BubbleBurst.Game.prototype = {
             - Bugs?
             {
                 -Need to fix scaling problem, changing size of window cuts off the game window
-                -Don't know why delayedEvent doesn't work properly to toggleInvincibility
+        
             }
         */
 
         /////////////////////////////////// Global variables ///////////////////////////////////////////
+
         //this.map = this.make.tilemap({ key: 'level1' });
         this.physics.world.setBounds(0,0, 1920 * 2, 1080 * 2);
         this.cameras.main.setBounds(0,0, 1920 * 2, 1080 * 2);
@@ -126,14 +123,14 @@ BubbleBurst.Game.prototype = {
         this.add.image(0, 1080, 'bg').setOrigin(0);
         this.add.image(1920, 1080, 'bg').setOrigin(0);
 
-
         // Player stats and stuff
     
         this.player = this.physics.add.sprite(1920, 1080, 'player');
         this.player.setCollideWorldBounds(true);
-        this.fullHealth = 20;
+        this.fullHealth = 100;
         this.player.health = this.fullHealth;
         this.player.invincible = false;
+        this.invincibilityTime = 1000;
 
 
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
@@ -147,18 +144,7 @@ BubbleBurst.Game.prototype = {
             graphics.strokeRect(200, 200, this.cameras.main.deadzone.width, this.cameras.main.deadzone.height);
         }
 
-        // Bubble stats and stuff
-        /*this.bubbles_1 = this.physics.add.group({
-            key: 'bubble1',
-            repeat: 15,
-            setXY: {x:Phaser.Math.Between(0, window.innerWidth), y:Phaser.Math.Between(0, window.innerHeight)}
-        });*/
-
-        /*this.bubbles_1.children.iterate(function (child) {
-            child.setVelocity(Phaser.Math.Between(200, 400), Phaser.Math.Between(200, 400));
-            child.setBounce(1).setCollideWorldBounds(true);
-            child.setCircle(64, 0, 0);
-        });*/
+        // Create the Big Bubbles
 
         this.bigBubbles = this.physics.add.group(
             {
@@ -171,7 +157,6 @@ BubbleBurst.Game.prototype = {
         //  Randomly position the sprites within the rectangle
         Phaser.Actions.RandomRectangle(this.bigBubbles.getChildren(), rect);
         
-
         var counter = 0;
         this.bigBubbles.children.iterate(function (child) {
             if (counter % 4 == 0) {
@@ -188,13 +173,23 @@ BubbleBurst.Game.prototype = {
             }
             child.setBounce(1).setCollideWorldBounds(true);
             child.setCircle(64, 0, 0);
-            counter++;
+            counter += Phaser.Math.Between(0,3);
         });
 
-        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBubble, null, this);
+        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
 
         // Create the bullets here
         this.playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
+
+        // Need to add shooting delay
+        this.shoot = true;
+        this.shootingDelay = 100;
+
+        // Add reloading time and maximum bullet clip
+        this.reload = false;
+        this.reloadDelay = 1000;
+        this.maxBullets = 6;
+        this.bulletsFired = 0;
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -214,13 +209,17 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
+
             
-            if (!this.player.invincible) {
+            if (!this.player.invincible && this.shoot && !this.reload) {
+                // Delay the time between shots
+                this.shoot = false;
+                this.time.delayedCall(this.shootingDelay, this.canShoot, [], this);
                 // Get bullets and set direction 
                 var bullet = this.playerBullets.get().setActive(true).setVisible(true);
                 var direction = 'up';
 
-                // Idk why bullet is a boolean
+                // Idk why bullet is a boolean 
                 if (bullet) {
 
                     bullet.fire(this.player, direction);
@@ -228,6 +227,16 @@ BubbleBurst.Game.prototype = {
                     // Add collision between bubbles and bullet and a callback function to handle what happens
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
                 }
+
+                // Increment bulletsFired
+                this.bulletsFired++;
+                // Check if there is no more ammo in the gun
+                if (this.bulletsFired == this.maxBullets) {
+                    this.reload = true;
+                    this.time.delayedCall(this.reloadDelay, this.reloading, [], this);
+                }
+
+
             }
         }, this);
 
@@ -235,13 +244,20 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
-            if (!this.player.invincible) {
+            if (!this.player.invincible && this.shoot && !this.reload) {
+                this.shoot = false;
+                this.time.delayedCall(this.shootingDelay, this.canShoot, [], this);
                 var bullet = this.playerBullets.get().setActive(true).setVisible(true);
                 var direction = 'down';
                 if (bullet) {
                     bullet.rotation = 0;
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
+                this.bulletsFired++;
+                if (this.bulletsFired == this.maxBullets) {
+                    this.reload = true;
+                    this.time.delayedCall(this.reloadDelay, this.reloading, [], this);
                 }
             }
         }, this);
@@ -250,12 +266,19 @@ BubbleBurst.Game.prototype = {
            if (this.player.active === false) {
             return;
             }
-            if (!this.player.invincible) {
+            if (!this.player.invincible && this.shoot && !this.reload) {
+                this.shoot = false;
+                this.time.delayedCall(this.shootingDelay, this.canShoot, [], this);
                 var bullet = this.playerBullets.get().setActive(true).setVisible(true);
                 var direction = 'left';
                 if (bullet) {
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
+                this.bulletsFired++;
+                if (this.bulletsFired == this.maxBullets) {
+                    this.reload = true;
+                    this.time.delayedCall(this.reloadDelay, this.reloading, [], this);
                 }
             }
         }, this);
@@ -264,12 +287,19 @@ BubbleBurst.Game.prototype = {
             if (this.player.active === false) {
                 return;
             }
-            if (!this.player.invincible) {
+            if (!this.player.invincible && this.shoot && !this.reload) {
+                this.shoot = false;
+                this.time.delayedCall(this.shootingDelay, this.canShoot, [], this);
                 var bullet = this.playerBullets.get().setActive(true).setVisible(true);
                 var direction = 'right';
                 if (bullet) {
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBullet);
+                }
+                this.bulletsFired++;
+                if (this.bulletsFired == this.maxBullets) {
+                    this.reload = true;
+                    this.time.delayedCall(this.reloadDelay, this.reloading, [], this);
                 }
             }
         }, this);
@@ -320,33 +350,31 @@ BubbleBurst.Game.prototype = {
         }
     },
 
-    collideBubble: function(){
+    collideBigBubble: function(){
         if (!this.player.invincible) {
             // If player is not invincible, do damage and make him invincible for 2 seconds
-            this.player.health -= 1;
+            this.player.health -= 20;
             
             // modify the health bar
             this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
 
-            this.toggleInvincible();
+            this.turnInvincible();
+
             // Add an delayed event that makes the player vulnerable after 2 seconds
-            this.time.delayedCall(2000, this.toggleInvincible, [], this);
+            this.time.delayedCall(this.invincibilityTime, this.turnMortal, [], this);
         }
     },
 
-    toggleInvincible : function() {
-        this.player.invincible = !this.player.invincible;
-        if (this.player.invincible) {
-            this.physics.world.removeCollider(this.playerCollider);
-        }
-        else {
-            this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBubble, null, this);
-        }
+    turnInvincible : function() {
+        alert("You are invincible");
+        this.player.invincible = true;
+        this.physics.world.removeCollider(this.playerCollider);
     },
 
-    mortal : function() {
-        alert("2 secs passed");
-        this.player.invincible = !this.player.invincible;
+    turnMortal : function() {
+        alert("You are a mortal");
+        this.player.invincible = false;
+        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
     },
 
     collideBullet: function(bubble, bullet){
@@ -354,5 +382,14 @@ BubbleBurst.Game.prototype = {
         var y = bubble.y;
         bubble.destroy();
         bullet.destroy();
+    },
+
+    canShoot : function() {
+        this.shoot = true;
+    },
+
+    reloading : function() {
+        this.reload = false;
+        this.bulletsFired = 0;
     }
 }
