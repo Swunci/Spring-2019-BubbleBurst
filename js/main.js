@@ -21,5 +21,5 @@ BubbleBurst.game.scene.add('Game', BubbleBurst.Game);
 BubbleBurst.game.scene.add('Controls', BubbleBurst.Controls);
 BubbleBurst.game.scene.add('Story', BubbleBurst.Story);
 BubbleBurst.game.scene.add('Esc', BubbleBurst.Esc);
-
+BubbleBurst.game.scene.add('GameOver', BubbleBurst.GameOver);
 BubbleBurst.game.scene.start('Preload');

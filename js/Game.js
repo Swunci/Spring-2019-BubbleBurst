@@ -77,9 +77,6 @@ var Bullet = new Phaser.Class({
 class MediumBubble extends Phaser.Physics.Arcade.Sprite {
     constructor(scene) {
       super(scene, 0, 0, 'bubble2');
-      this.speed = 1;
-      this.xSpeed = 0;
-      this.ySpeed = 0;
     }
     
     // Spawn at this location
@@ -98,9 +95,6 @@ class MediumBubble extends Phaser.Physics.Arcade.Sprite {
   class SmallBubble extends Phaser.Physics.Arcade.Sprite {
     constructor(scene) {
       super(scene, 0, 0, 'bubble3');
-      this.speed = 1;
-      this.xSpeed = 0;
-      this.ySpeed = 0;
     }
     
     spawn(x, y) {
@@ -109,10 +103,6 @@ class MediumBubble extends Phaser.Physics.Arcade.Sprite {
         this.setVisible(true);
     }
 
-    setDirection(xSpeed, ySpeed) {
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
-    }
 
     setVelocity(x, y) {
         super.setVelocity(x, y);
@@ -126,15 +116,9 @@ BubbleBurst.Game.prototype = {
 
         ////////            TODO          //////////
         /*
-            - Mechanics
-            {
-                -Shrinking player when he takes damage (might not do this one)
-            }
-
             - Graphics
             {
                 -Basically need to start making stuff in GIMP
-                -Invincibility Animation
                 -Reload Animation
                 -Need level maps
                 -Character sprite
@@ -150,12 +134,7 @@ BubbleBurst.Game.prototype = {
                 - Taking damage
                 - Popping bubbles
             }
-            
-            - AI
-            {
-                
-            }
-
+        
             - Bugs?
             {
                 -Need to fix scaling problem, changing size of window doesn't scale the game
@@ -165,14 +144,11 @@ BubbleBurst.Game.prototype = {
             {
                 -Create a system for levels
                 -Winning message or something
-                -Dead screen
                 -Front page could look better
-                -Backstory text gets cut off when playing on a smaller screen size
             }
             
             - Improvements
             {
-                -Give the different sized bubbles different damage values
                 -Game might be too hard once obstacles are added, might need to adjust damage and speed values
                 -No graphics at all right now
             }
@@ -193,8 +169,6 @@ BubbleBurst.Game.prototype = {
         this.minimap.setBounds(0,0, 1920 * 2, 1080 * 2);
         this.minimap.alpha = .75;
     
-    
-
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
     
         this.player = this.physics.add.sprite(1920, 1080, 'player');
@@ -281,7 +255,7 @@ BubbleBurst.Game.prototype = {
         
         //////////////////////////////// Functions for each control key ////////////////////////////////////////////
         
-        moveKeys = this.input.keyboard.addKeys({
+        this.moveKeys = this.input.keyboard.addKeys({
             'up': Phaser.Input.Keyboard.KeyCodes.W,
             'down': Phaser.Input.Keyboard.KeyCodes.S,
             'left': Phaser.Input.Keyboard.KeyCodes.A,
@@ -406,12 +380,8 @@ BubbleBurst.Game.prototype = {
 
         // the player is dead
         if (this.player.health <= 0){
-            window.alert('DEAD, return to main menu after 3 seconds');
-            var now = new Date().getTime();
-            while ( new Date().getTime() < now + 3000 ){
-                // do nothing, wait for three seconds and return to main menu
-            }
-            this.scene.start('MainMenu');
+            this.gameOver();
+            this.input.keyboard.resetKeys();
         }
 
         // Add event handler to ESC key
@@ -476,7 +446,6 @@ BubbleBurst.Game.prototype = {
     },
 
     turnInvincible : function() {
-        alert("You are invincible");
         this.player.invincible = true;
         this.physics.world.removeCollider(this.playerBigBubbleCollider);
         this.physics.world.removeCollider(this.playerMediumBubbleCollider);
@@ -485,7 +454,6 @@ BubbleBurst.Game.prototype = {
     },
 
     turnMortal : function() {
-        alert("You are a mortal");
         this.player.invincible = false;
         this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
         this.playerMediumBubbleCollider = this.physics.add.collider(this.player, this.mediumBubbles, this.collideMediumBubble, null, this);
@@ -541,7 +509,7 @@ BubbleBurst.Game.prototype = {
         this.randomizeDirection(smallBubble2, this.smallBubbles.size, this.smallBubbles.speed);
     },
 
-    randomizeDirection(bubble, size, speed) {
+    randomizeDirection : function(bubble, size, speed) {
         var counter = Phaser.Math.Between(0,3);
         if (counter % 4 == 0) {
             bubble.setVelocity(speed, speed);
@@ -559,6 +527,14 @@ BubbleBurst.Game.prototype = {
         bubble.setCircle(size, 0, 0);
 
         // Will add collider with the obstacles in the map later
+    },
+
+    gameOver : function() {
+        this.cameras.main.fade(2000,0,0,0);
+        this.minimap.fade(2000,0,0,0);
+        this.time.delayedCall(2000, function() {
+            this.scene.start('GameOver');
+        }, [], this);
     }
     
 }
