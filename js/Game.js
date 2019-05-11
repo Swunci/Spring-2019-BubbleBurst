@@ -9,7 +9,6 @@ var Bullet = new Phaser.Class({
 
     initialize:
 
-    // Bullet Constructor
     function Bullet (scene) {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
         this.speed = 1;
@@ -55,6 +54,7 @@ var Bullet = new Phaser.Class({
         this.x += this.xSpeed * delta;
         this.y += this.ySpeed * delta;
         
+        // Slow the bullet down after half a second
         if (this.lifeState > 500) {
             this.xSpeed = this.xSpeed*.98;
             this.ySpeed = this.ySpeed*.98;
@@ -73,9 +73,31 @@ var Bullet = new Phaser.Class({
 
 ////////////////////////////////  End of Bullet class  ///////////////////////////////////
 
+////////////////////////////////    Bubble Classes     ///////////////////////////////////
 class MediumBubble extends Phaser.Physics.Arcade.Sprite {
     constructor(scene) {
       super(scene, 0, 0, 'bubble2');
+      this.speed = 1;
+      this.xSpeed = 0;
+      this.ySpeed = 0;
+    }
+    
+    // Spawn at this location
+    spawn(x, y) {
+        this.setPosition(x, y);
+        this.setActive(true);
+        this.setVisible(true);
+    }
+
+    // Set direction and speed
+    setVelocity(x, y) {
+        super.setVelocity(x, y);
+    }
+  }
+
+  class SmallBubble extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene) {
+      super(scene, 0, 0, 'bubble3');
       this.speed = 1;
       this.xSpeed = 0;
       this.ySpeed = 0;
@@ -92,18 +114,12 @@ class MediumBubble extends Phaser.Physics.Arcade.Sprite {
         this.ySpeed = ySpeed;
     }
 
-    // To call sprite.setVelocity
     setVelocity(x, y) {
         super.setVelocity(x, y);
     }
-    
-    // Don't need this no more
-    /*update(time, delta) {
-      this.y += this.ySpeed * delta;
-      this.x += this.xSpeed * delta;
-    }
-    */
   }
+
+////////////////////////////////    End of Bubble Classes     ///////////////////////////////////
 
 BubbleBurst.Game.prototype = {
     create: function(){
@@ -113,15 +129,15 @@ BubbleBurst.Game.prototype = {
             - Mechanics
             {
                 -Shrinking player when he takes damage (might not do this one)
-                -
             }
 
             - Graphics
             {
                 -Basically need to start making stuff in GIMP
+                -Invincibility Animation
+                -Reload Animation
                 -Need level maps
                 -Character sprite
-                -Need animations
                 -Add UI for how much ammo left in gun
             }
 
@@ -130,7 +146,7 @@ BubbleBurst.Game.prototype = {
                 - Shooting
                 - Background music
                 - Winning music
-                - Deathing music
+                - Death music
                 - Taking damage
                 - Popping bubbles
             }
@@ -147,6 +163,7 @@ BubbleBurst.Game.prototype = {
             
             - Other stuff to do
             {
+                -Create a system for levels
                 -Winning message or something
                 -Dead screen
                 -Front page could look better
@@ -166,12 +183,19 @@ BubbleBurst.Game.prototype = {
         //this.map = this.make.tilemap({ key: 'level1' });
         this.physics.world.setBounds(0,0, 1920 * 2, 1080 * 2);
         this.cameras.main.setBounds(0,0, 1920 * 2, 1080 * 2);
+        this.cameras.main.setZoom(.95);
         this.add.image(0,0, 'bg').setOrigin(0);
         this.add.image(1920, 0, 'bg').setOrigin(0);
         this.add.image(0, 1080, 'bg').setOrigin(0);
         this.add.image(1920, 1080, 'bg').setOrigin(0);
 
-        // Player stats and stuff
+        this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
+        this.minimap.setBounds(0,0, 1920 * 2, 1080 * 2);
+        this.minimap.alpha = .75;
+    
+    
+
+        ////////////////////////////////// Player variables and stuff here //////////////////////////////
     
         this.player = this.physics.add.sprite(1920, 1080, 'player');
         this.player.setCollideWorldBounds(true);
@@ -181,8 +205,8 @@ BubbleBurst.Game.prototype = {
         this.invincibilityTime = 1000;
 
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
-        // add health bar
-        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9), 'healthbar').setScrollFactor(0);
+        this.minimap.startFollow(this.player, true, 0.05, 0.05);
+        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0);
         this.healthbar.setScrollFactor(0);
         if (this.cameras.main.deadzone)
         {
@@ -190,9 +214,15 @@ BubbleBurst.Game.prototype = {
             graphics.lineStyle(2, 0x00ff00, 1);
             graphics.strokeRect(200, 200, this.cameras.main.deadzone.width, this.cameras.main.deadzone.height);
         }
+        if (this.minimap.deadzone)
+        {
+            graphics = this.add.graphics().setScrollFactor(0);
+            graphics.lineStyle(2, 0x00ff00, 1);
+            graphics.strokeRect(200, 200, this.minimap.deadzone.width, this.minimap.deadzone.height);
+        }
 
 
-        // Create the big bubbles
+        ////////////////////////        Bubbles variables    ///////////////////////////////
 
         this.bigBubbles = this.physics.add.group(
             {
@@ -200,20 +230,24 @@ BubbleBurst.Game.prototype = {
                 repeat: 10,
             }
         );
-        
-
-        // Create the medium bubbles
-
         this.mediumBubbles = this.physics.add.group({ classType: MediumBubble, runChildUpdate: false});
+        this.smallBubbles = this.physics.add.group({ classType: SmallBubble, runChildUpdate: false});
 
 
-        // Bubble variables
         this.bigBubbles.size = 64;
         this.mediumBubbles.size = 32;
-        //this.smallBubbles.size = 16;
+        this.smallBubbles.size = 16;
+
         this.bigBubbles.speed = 250;
         this.mediumBubbles.speed = 500;
-        //this.smallBubbles.speed = 1000;
+        this.smallBubbles.speed = 1000;
+
+        this.bigBubbles.damage = 20;
+        this.mediumBubbles.damage = 10;
+        this.smallBubbles.damage = 5;
+
+
+        //////////////////////      Bubble Spawn Location       /////////////////////////////////
 
         // spawn big bubbles
         var rect = new Phaser.Geom.Rectangle(0, 0, 1920 * 2, 1080 * 2);
@@ -226,19 +260,18 @@ BubbleBurst.Game.prototype = {
         }, this);
 
 
+        /////////////////////        Colliders              ////////////////////
+        this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
+        this.playerMediumBubbleCollider = this.physics.add.collider(this.player, this.mediumBubbles, this.collideMediumBubble, null, this);
+        this.playerSmallBubbleCollider = this.physics.add.collider(this.player, this.smallBubbles, this.collideSmallBubble, null, this);
 
-        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
 
+        ////////////////////       Bullet varibles/mechanics        /////////////////
 
-
-        // Create the bullets here
         this.playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
-
-        // Need to add shooting delay
         this.shoot = true;
         this.shootingDelay = 100;
 
-        // Add reloading time and maximum bullet clip
         this.reload = false;
         this.reloadDelay = 1000;
         this.maxBullets = 6;
@@ -280,6 +313,7 @@ BubbleBurst.Game.prototype = {
                     // Add collision between bubbles and bullet and a callback function to handle what happens
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
+                    this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
                 }
 
                 // Increment bulletsFired
@@ -306,6 +340,7 @@ BubbleBurst.Game.prototype = {
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
+                    this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
@@ -328,6 +363,7 @@ BubbleBurst.Game.prototype = {
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
+                    this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
@@ -350,6 +386,7 @@ BubbleBurst.Game.prototype = {
                     bullet.fire(this.player, direction);
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
+                    this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
@@ -408,28 +445,52 @@ BubbleBurst.Game.prototype = {
     collideBigBubble : function(){
         if (!this.player.invincible) {
             // If player is not invincible, do damage and make him invincible for 2 seconds
-            this.player.health -= 20;
+            this.player.health -= this.bigBubbles.damage;
             
             // modify the health bar
             this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
 
             this.turnInvincible();
 
-            // Add an delayed event that makes the player vulnerable after 2 seconds
+            // Add an delayed event that makes the player vulnerable after X seconds
             this.time.delayedCall(this.invincibilityTime, this.turnMortal, [], this);
+        }
+    },
+
+    collideMediumBubble : function() {
+        if (!this.player.invincible) {
+            this.player.health -= this.mediumBubbles.damage;
+            this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
+            this.turnInvincible();
+            this.time.delayedCall(this.invincibilityTime/2, this.turnMortal, [], this);
+        }
+    },
+
+    collideSmallBubble : function() {
+        if (!this.player.invincible) {
+            this.player.health -= this.smallBubbles.damage;
+            this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
+            this.turnInvincible();
+            this.time.delayedCall(this.invincibilityTime/2, this.turnMortal, [], this);
         }
     },
 
     turnInvincible : function() {
         alert("You are invincible");
         this.player.invincible = true;
-        this.physics.world.removeCollider(this.playerCollider);
+        this.physics.world.removeCollider(this.playerBigBubbleCollider);
+        this.physics.world.removeCollider(this.playerMediumBubbleCollider);
+        this.physics.world.removeCollider(this.playerSmallBubbleCollider);
+        this.player.alpha = 0.25;
     },
 
     turnMortal : function() {
         alert("You are a mortal");
         this.player.invincible = false;
-        this.playerCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
+        this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
+        this.playerMediumBubbleCollider = this.physics.add.collider(this.player, this.mediumBubbles, this.collideMediumBubble, null, this);
+        this.playerSmallBubbleCollider = this.physics.add.collider(this.player, this.smallBubbles, this.collideSmallBubble, null, this);
+        this.player.alpha = 1;
     },
 
     collideBulletBigBubble : function(bullet, bubble) {
@@ -441,7 +502,12 @@ BubbleBurst.Game.prototype = {
     collideBulletMediumBubble : function(bullet, bubble) {
         bubble.destroy();
         bullet.destroy();
-        // spawn small bubbles
+        this.spawnSmallBubbles(bubble.x, bubble.y);
+    },
+
+    collideBulletSmallBubble : function(bullet, bubble) {
+        bubble.destroy();
+        bullet.destroy();
     },
 
     canShoot : function() {
@@ -456,12 +522,23 @@ BubbleBurst.Game.prototype = {
     spawnMediumBubbles : function(x, y) {
         var mediumBubble1 = this.mediumBubbles.get().setActive(true).setVisible(true);
         var mediumBubble2 = this.mediumBubbles.get().setActive(true).setVisible(true);
-        mediumBubble1.body.setCircle(32,0,0).setBounce(1).setCollideWorldBounds(true);
-        mediumBubble2.body.setCircle(32,0,0).setBounce(1).setCollideWorldBounds(true);
-        mediumBubble1.spawn(x, y);
-        mediumBubble2.spawn(x, y);
+        mediumBubble1.body.setCircle(this.mediumBubbles.size,0,0).setBounce(1).setCollideWorldBounds(true);
+        mediumBubble2.body.setCircle(this.mediumBubbles.size,0,0).setBounce(1).setCollideWorldBounds(true);
+        mediumBubble1.spawn(x,y);
+        mediumBubble2.spawn(x,y);
         this.randomizeDirection(mediumBubble1, this.mediumBubbles.size, this.mediumBubbles.speed);
         this.randomizeDirection(mediumBubble2, this.mediumBubbles.size, this.mediumBubbles.speed);
+    },
+
+    spawnSmallBubbles : function(x, y) {
+        var smallBubble1 = this.smallBubbles.get().setActive(true).setVisible(true);
+        var smallBubble2 = this.smallBubbles.get().setActive(true).setVisible(true);
+        smallBubble1.body.setCircle(this.smallBubbles.size,0,0).setBounce(1).setCollideWorldBounds(true);
+        smallBubble2.body.setCircle(this.smallBubbles.size,0,0).setBounce(1).setCollideWorldBounds(true);
+        smallBubble1.spawn(x,y);
+        smallBubble2.spawn(x,y);
+        this.randomizeDirection(smallBubble1, this.smallBubbles.size, this.smallBubbles.speed);
+        this.randomizeDirection(smallBubble2, this.smallBubbles.size, this.smallBubbles.speed);
     },
 
     randomizeDirection(bubble, size, speed) {
