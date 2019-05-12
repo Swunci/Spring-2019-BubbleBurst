@@ -137,7 +137,6 @@ BubbleBurst.Game.prototype = {
             {
                 -Basically need to start making stuff in GIMP
                 -Reload Animation
-                -Need level maps
                 -Character sprite
                 -Add UI for how much ammo left in gun
             }
@@ -160,14 +159,7 @@ BubbleBurst.Game.prototype = {
             - Other stuff to do
             {
                 -Create a system for levels
-                -Winning message or something
                 -Front page could look better
-            }
-            
-            - Improvements
-            {
-                -Game might be too hard once obstacles are added, might need to adjust damage and speed values
-                -No graphics at all right now
             }
         */
 
@@ -334,6 +326,7 @@ BubbleBurst.Game.prototype = {
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
+                    this.physics.add.collider(bullet, this.walls, null, null, this);
                 }
 
                 // Increment bulletsFired
@@ -361,6 +354,7 @@ BubbleBurst.Game.prototype = {
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
+                    this.physics.add.collider(bullet, this.walls, null, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
@@ -384,6 +378,7 @@ BubbleBurst.Game.prototype = {
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
+                    this.physics.add.collider(bullet, this.walls, null, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
@@ -407,6 +402,7 @@ BubbleBurst.Game.prototype = {
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
+                    this.physics.add.collider(bullet, this.walls, null, null, this);
                 }
                 this.bulletsFired++;
                 if (this.bulletsFired == this.maxBullets) {
