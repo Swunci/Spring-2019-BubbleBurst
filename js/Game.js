@@ -136,7 +136,7 @@ BubbleBurst.Game.prototype = {
         
             - Bugs?
             {
-                -Need to fix scaling problem, changing size of window doesn't scale the game
+                -Some parts of the wall can be passed through for some reason
             }
             
             - Other stuff to do
@@ -157,7 +157,7 @@ BubbleBurst.Game.prototype = {
 
         this.physics.world.setBounds(0,0, 1920 * 2, 1920 * 2);
         this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
-        this.cameras.main.setZoom(1.5);
+        this.cameras.main.setZoom(.95);
         
         this.map = this.make.tilemap({key : 'testmap'});
         //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
@@ -167,7 +167,7 @@ BubbleBurst.Game.prototype = {
         this.floor = this.map.createStaticLayer('Floor', tiles);
         this.walls = this.map.createStaticLayer('Walls', tiles);
 
-        this.map.setCollisionBetween(1, 2000, true, 'Walls');
+        this.map.setCollisionBetween(1, 100000, true, 'Walls');
 
 
         this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
@@ -187,8 +187,7 @@ BubbleBurst.Game.prototype = {
 
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
         this.minimap.startFollow(this.player, true, 0.05, 0.05);
-        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0);
-        this.healthbar.setScrollFactor(0);
+        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0); 
 
         //this.ammoSprite = this.physics.add.sprite(100, window.ineerHeight/(10/9.5), 'bullet').setSc
         if (this.cameras.main.deadzone)
@@ -385,7 +384,7 @@ BubbleBurst.Game.prototype = {
     },
 
     update: function(){
-
+        this.physics.collide(this.player, this.walls);
         cursors = this.input.keyboard.createCursorKeys();
         if (this.bubblesKiled == this.enemies) {
             this.win();
