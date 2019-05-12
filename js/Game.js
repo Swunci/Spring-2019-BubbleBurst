@@ -155,17 +155,23 @@ BubbleBurst.Game.prototype = {
 
         /////////////////////////////////// Global variables ///////////////////////////////////////////
 
-        //this.map = this.make.tilemap({ key: 'level1' });
-        this.physics.world.setBounds(0,0, 1920 * 2, 1080 * 2);
-        this.cameras.main.setBounds(0,0, 1920 * 2, 1080 * 2);
-        this.cameras.main.setZoom(.95);
-        this.add.image(0,0, 'bg').setOrigin(0);
-        this.add.image(1920, 0, 'bg').setOrigin(0);
-        this.add.image(0, 1080, 'bg').setOrigin(0);
-        this.add.image(1920, 1080, 'bg').setOrigin(0);
+        this.physics.world.setBounds(0,0, 1920 * 2, 1920 * 2);
+        this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
+        this.cameras.main.setZoom(1.5);
+        
+        this.map = this.make.tilemap({key : 'testmap'});
+        //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+        var tiles = this.map.addTilesetImage('a', 'gameTiles');
+        this.background = this.map.createStaticLayer('background', tiles);
+        this.background2 = this.map.createStaticLayer('background2', tiles);
+        this.floor = this.map.createStaticLayer('Floor', tiles);
+        this.walls = this.map.createStaticLayer('Walls', tiles);
+
+        this.map.setCollisionBetween(1, 2000, true, 'Walls');
+
 
         this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
-        this.minimap.setBounds(0,0, 1920 * 2, 1080 * 2);
+        this.minimap.setBounds(0,0, 1920 * 2, 1920 * 2);
         this.minimap.alpha = .75;
     
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
@@ -379,6 +385,7 @@ BubbleBurst.Game.prototype = {
     },
 
     update: function(){
+
         cursors = this.input.keyboard.createCursorKeys();
         if (this.bubblesKiled == this.enemies) {
             this.win();
