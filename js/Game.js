@@ -73,6 +73,24 @@ var Bullet = new Phaser.Class({
 ////////////////////////////////  End of Bullet class  ///////////////////////////////////
 
 ////////////////////////////////    Bubble Classes     ///////////////////////////////////
+class BigBubble extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene) {
+      super(scene, 0, 0, 'bubble1');
+    }
+    
+    // Spawn at this location
+    spawn(x, y) {
+        this.setPosition(x, y);
+        this.setActive(true);
+        this.setVisible(true);
+    }
+
+    // Set direction and speed
+    setVelocity(x, y) {
+        super.setVelocity(x, y);
+    }
+  }
+
 class MediumBubble extends Phaser.Physics.Arcade.Sprite {
     constructor(scene) {
       super(scene, 0, 0, 'bubble2');
@@ -163,8 +181,8 @@ BubbleBurst.Game.prototype = {
         //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
         var tiles = this.map.addTilesetImage('a', 'gameTiles');
         this.background = this.map.createStaticLayer('background', tiles);
-        this.background2 = this.map.createStaticLayer('background2', tiles);
         this.floor = this.map.createStaticLayer('Floor', tiles);
+        this.background2 = this.map.createStaticLayer('background2', tiles);
         this.walls = this.map.createStaticLayer('Walls', tiles);
 
         this.map.setCollisionBetween(1, 15000, true, 'Walls');
@@ -176,7 +194,8 @@ BubbleBurst.Game.prototype = {
     
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
         this.bubblesKiled = 0;
-        this.enemies = 4;
+        this.numOfBigBubbles = 20;
+        this.enemies = this.numOfBigBubbles * 4;
 
         this.player = this.physics.add.sprite(1920, 1080, 'player');
         this.player.setCollideWorldBounds(true);
@@ -206,12 +225,7 @@ BubbleBurst.Game.prototype = {
 
         ////////////////////////        Bubbles variables    ///////////////////////////////
 
-        this.bigBubbles = this.physics.add.group(
-            {
-                key: 'bubble1',
-                //repeat: 1,
-            }
-        );
+        this.bigBubbles = this.physics.add.group({ classType: BigBubble, runChildUpdate: false});
         this.mediumBubbles = this.physics.add.group({ classType: MediumBubble, runChildUpdate: false});
         this.smallBubbles = this.physics.add.group({ classType: SmallBubble, runChildUpdate: false});
 
@@ -220,9 +234,9 @@ BubbleBurst.Game.prototype = {
         this.mediumBubbles.size = 32;
         this.smallBubbles.size = 16;
 
-        this.bigBubbles.speed = 200;
-        this.mediumBubbles.speed = 300;
-        this.smallBubbles.speed = 400;
+        this.bigBubbles.speed = 300;
+        this.mediumBubbles.speed = 400;
+        this.smallBubbles.speed = 500;
 
         this.bigBubbles.damage = 20;
         this.mediumBubbles.damage = 10;
@@ -232,14 +246,34 @@ BubbleBurst.Game.prototype = {
         //////////////////////      Bubble Spawn Location       /////////////////////////////////
 
         // spawn big bubbles
-        var rect = new Phaser.Geom.Rectangle(0, 0, 1920 * 2, 1080 * 2);
-
+        //var rect = new Phaser.Geom.Rectangle(60, 60, 3500, 600);
+        //var rect2 = new Phaser.Geom.Rectangle(60, 1440, 3500, 800);
+        //var rect3 = new Phaser.Geom.Rectangle(1050, 3000, 1850, 600);
         //  Randomly position the sprites within the rectangle
-        Phaser.Actions.RandomRectangle(this.bigBubbles.getChildren(), rect);
+
+
+        for (var i = 0; i < this.numOfBigBubbles; i++) {
+            // Give higher chance for spawning in the bigger room
+            var counter = Phaser.Math.Between(0,3);
+            var bubble = this.bigBubbles.get().setActive(true).setVisible(true);
+            if (counter % 3 == 0) {
+                // Middle room
+                bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(1440, 2040));
+            }
+            else if (counter % 3 == 1) {
+                // top room
+                bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(60, 600));
+            }
+            else {
+                // lab
+                bubble.spawn(Phaser.Math.Between(1050, 1850), Phaser.Math.Between(3000, 3600));
+            }
+            this.randomizeDirection(bubble, this.bigBubbles.size, this.bigBubbles.speed);
+        }
         
-        this.bigBubbles.children.iterate(function (child) {
+        /*this.bigBubbles.children.iterate(function (child) {
             this.randomizeDirection(child, this.bigBubbles.size, this.bigBubbles.speed);
-        }, this);
+        }, this);*/
 
 
         /////////////////////        Colliders              ////////////////////
