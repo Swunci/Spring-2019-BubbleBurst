@@ -64,8 +64,7 @@ var Bullet = new Phaser.Class({
         // How long the bullet will last before disappearing
         if (this.born > 1500)
         {
-            this.setActive(false);
-            this.setVisible(false);
+            this.destroy();
         }
     }
 
@@ -170,7 +169,9 @@ BubbleBurst.Game.prototype = {
         this.minimap.alpha = .75;
     
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
-    
+        this.bubblesKiled = 0;
+        this.enemies = 4;
+
         this.player = this.physics.add.sprite(1920, 1080, 'player');
         this.player.setCollideWorldBounds(true);
         this.fullHealth = 100;
@@ -182,6 +183,8 @@ BubbleBurst.Game.prototype = {
         this.minimap.startFollow(this.player, true, 0.05, 0.05);
         this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0);
         this.healthbar.setScrollFactor(0);
+
+        //this.ammoSprite = this.physics.add.sprite(100, window.ineerHeight/(10/9.5), 'bullet').setSc
         if (this.cameras.main.deadzone)
         {
             graphics = this.add.graphics().setScrollFactor(0);
@@ -201,7 +204,7 @@ BubbleBurst.Game.prototype = {
         this.bigBubbles = this.physics.add.group(
             {
                 key: 'bubble1',
-                repeat: 10,
+                //repeat: 1,
             }
         );
         this.mediumBubbles = this.physics.add.group({ classType: MediumBubble, runChildUpdate: false});
@@ -213,8 +216,8 @@ BubbleBurst.Game.prototype = {
         this.smallBubbles.size = 16;
 
         this.bigBubbles.speed = 250;
-        this.mediumBubbles.speed = 500;
-        this.smallBubbles.speed = 1000;
+        this.mediumBubbles.speed = 400;
+        this.smallBubbles.speed = 500;
 
         this.bigBubbles.damage = 20;
         this.mediumBubbles.damage = 10;
@@ -377,6 +380,10 @@ BubbleBurst.Game.prototype = {
 
     update: function(){
         cursors = this.input.keyboard.createCursorKeys();
+        if (this.bubblesKiled == this.enemies) {
+            this.win();
+            this.input.keyboard.resetKeys();
+        }
 
         // the player is dead
         if (this.player.health <= 0){
@@ -476,6 +483,7 @@ BubbleBurst.Game.prototype = {
     collideBulletSmallBubble : function(bullet, bubble) {
         bubble.destroy();
         bullet.destroy();
+        this.bubblesKiled++;
     },
 
     canShoot : function() {
@@ -532,9 +540,13 @@ BubbleBurst.Game.prototype = {
     gameOver : function() {
         this.cameras.main.fade(2000,0,0,0);
         this.minimap.fade(2000,0,0,0);
-        this.time.delayedCall(2000, function() {
+        this.time.delayedCall(1900, function() {
             this.scene.start('GameOver');
         }, [], this);
+    },
+
+    win : function() {
+        this.scene.start('Win');
     }
     
 }
