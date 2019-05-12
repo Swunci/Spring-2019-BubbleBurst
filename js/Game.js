@@ -167,7 +167,7 @@ BubbleBurst.Game.prototype = {
         this.floor = this.map.createStaticLayer('Floor', tiles);
         this.walls = this.map.createStaticLayer('Walls', tiles);
 
-        this.map.setCollisionBetween(1, 100000, true, 'Walls');
+        this.map.setCollisionBetween(1, 15000, true, 'Walls');
 
 
         this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
@@ -220,9 +220,9 @@ BubbleBurst.Game.prototype = {
         this.mediumBubbles.size = 32;
         this.smallBubbles.size = 16;
 
-        this.bigBubbles.speed = 250;
-        this.mediumBubbles.speed = 400;
-        this.smallBubbles.speed = 500;
+        this.bigBubbles.speed = 200;
+        this.mediumBubbles.speed = 300;
+        this.smallBubbles.speed = 400;
 
         this.bigBubbles.damage = 20;
         this.mediumBubbles.damage = 10;
@@ -246,6 +246,10 @@ BubbleBurst.Game.prototype = {
         this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
         this.playerMediumBubbleCollider = this.physics.add.collider(this.player, this.mediumBubbles, this.collideMediumBubble, null, this);
         this.playerSmallBubbleCollider = this.physics.add.collider(this.player, this.smallBubbles, this.collideSmallBubble, null, this);
+        this.physics.add.collider(this.player, this.walls, null, null, this);
+        this.physics.add.collider(this.bigBubbles, this.walls, null, null, this);
+        this.physics.add.collider(this.mediumBubbles, this.walls, null, null, this);
+        this.physics.add.collider(this.smallBubbles, this.walls, null, null, this);
 
 
         ////////////////////       Bullet varibles/mechanics        /////////////////
@@ -384,7 +388,6 @@ BubbleBurst.Game.prototype = {
     },
 
     update: function(){
-        this.physics.collide(this.player, this.walls);
         cursors = this.input.keyboard.createCursorKeys();
         if (this.bubblesKiled == this.enemies) {
             this.win();
@@ -405,20 +408,20 @@ BubbleBurst.Game.prototype = {
         }
 
         if (cursors.left.isDown){ 
-            this.player.setVelocityX(-500);
+            this.player.setVelocityX(-300);
         }
         else if(cursors.right.isDown){
-            this.player.setVelocityX(500);
+            this.player.setVelocityX(300);
         }
         else{
             this.player.setVelocityX(0);
         }
 
         if (cursors.up.isDown){
-            this.player.setVelocityY(-500);
+            this.player.setVelocityY(-300);
         }
         else if(cursors.down.isDown){
-            this.player.setVelocityY(500);
+            this.player.setVelocityY(300);
         }
         else{
             this.player.setVelocityY(0);
