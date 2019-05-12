@@ -137,6 +137,7 @@ BubbleBurst.Game.prototype = {
             {
                 -Basically need to start making stuff in GIMP
                 -Reload Animation
+                -Need level maps
                 -Character sprite
                 -Add UI for how much ammo left in gun
             }
@@ -154,6 +155,7 @@ BubbleBurst.Game.prototype = {
             - Bugs?
             {
                 -Some parts of the wall can be passed through for some reason
+                -Bullets don't collide with the wall
             }
             
             - Other stuff to do
@@ -161,6 +163,7 @@ BubbleBurst.Game.prototype = {
                 -Create a system for levels
                 -Front page could look better
             }
+            
         */
 
         /////////////////////////////////// Global variables ///////////////////////////////////////////
