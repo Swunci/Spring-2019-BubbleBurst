@@ -54,8 +54,8 @@ var Bullet = new Phaser.Class({
         this.x += this.xSpeed * delta;
         this.y += this.ySpeed * delta;
         
-        // Slow the bullet down after half a second
-        if (this.lifeState > 500) {
+        // Slow the bullet down 
+        if (this.lifeState > 300) {
             this.xSpeed = this.xSpeed*.98;
             this.ySpeed = this.ySpeed*.98;
         }
@@ -514,17 +514,20 @@ BubbleBurst.Game.prototype = {
         bubble.destroy();
         bullet.destroy();
         this.spawnMediumBubbles(bubble.x, bubble.y);
+        this.sound.play('bubblepop');
     },
 
     collideBulletMediumBubble : function(bullet, bubble) {
         bubble.destroy();
         bullet.destroy();
         this.spawnSmallBubbles(bubble.x, bubble.y);
+        this.sound.play('bubblepop');
     },
 
     collideBulletSmallBubble : function(bullet, bubble) {
         bubble.destroy();
         bullet.destroy();
+        this.sound.play('bubblepop');
         this.bubblesKiled++;
     },
 

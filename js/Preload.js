@@ -16,6 +16,7 @@ BubbleBurst.Preload.prototype = {
         this.load.image('bg', 'assets/images/testbg.png');
         this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/testmap.json');
         this.load.image('gameTiles', 'assets/images/housetiles4x.png');
+        this.load.audio('bubblepop', 'assets/sounds/bubblepop1.mp3');
     },
     create: function(){
         this.scene.start('MainMenu');
