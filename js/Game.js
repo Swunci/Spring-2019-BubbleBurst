@@ -323,7 +323,7 @@ BubbleBurst.Game.prototype = {
             this.minimap.alpha = .30;
             this.map.setCollisionBetween(1, 20000, true, 'wall');
             this.bubblesKiled = 0;
-            this.numOfBigBubbles = 26;
+            this.numOfBigBubbles = 10;
             this.enemies = this.numOfBigBubbles * 4;
 
             this.player = this.physics.add.sprite(300, 300, 'player_16');
@@ -347,12 +347,10 @@ BubbleBurst.Game.prototype = {
             this.minimap.setBounds(0,0, 1920, 1920);
             this.bubblesKiled = 0;
             this.numOfBigBubbles = 40;
-            this.enemies = this.numOfBigBubbles * 4;
+            this.enemies = this.numOfBigBubbles * 2;
 
             // Spawn sprite at x, y location
             this.player = this.physics.add.sprite(960, 960, 'player');
-
-
         }
 
         ////////////////////////// Static variables //////////////////////////////
@@ -776,7 +774,7 @@ BubbleBurst.Game.prototype = {
             this.spawnSmallestBubbles(bubble.x, bubble.y);
         }
         else{
-            this.bubbleskilled++;
+            this.bubblesKilled++;
         }
     },
 
@@ -853,14 +851,18 @@ BubbleBurst.Game.prototype = {
     gameOver : function() {
         this.cameras.main.fade(2000,0,0,0);
         this.minimap.fade(2000,0,0,0);
-        this.game.music2.stop();
+        if (this.scene.settings.data == 2) {
+            this.game.music2.stop();
+        }
         this.time.delayedCall(1900, function() {
             this.scene.start('GameOver');
         }, [], this);
     },
 
     win : function() {
-        this.game.music2.stop();
+        if (this.scene.settings.data == 2) {
+            this.game.music2.stop();
+        }
         this.scene.start('Win');
     }
     

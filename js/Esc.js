@@ -47,7 +47,9 @@ BubbleBurst.Esc.prototype = {
     },
     mainMenu: function(){
         this.scene.stop('Game');
-        this.game.music2.stop();
+        if (this.scene.settings.data == 2) {
+            this.game.music2.stop();
+        }
         this.scene.start('MainMenu');
     },
     back:function(){
