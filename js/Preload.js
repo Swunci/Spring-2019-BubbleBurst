@@ -27,6 +27,7 @@ BubbleBurst.Preload.prototype = {
         this.load.image('sbullet', 'assets/images/sbullet.png');
 
         this.load.tilemapTiledJSON('level3', 'assets/tilemaps/level3.json');
+        this.load.audio('level2', 'assets/sounds/Etude in F minor.wav');
     },
     create: function(){
         this.scene.start('MainMenu');
