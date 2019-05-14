@@ -668,16 +668,11 @@ BubbleBurst.Game.prototype = {
         }
 
         if (cursors.left.isDown){ 
-            if(this.scene.settings.data == 2){
-                this.player.setFrame(1);
-            }
+            
             this.player.setVelocityX(-300);
         }
         else if(cursors.right.isDown){
             this.player.setVelocityX(300);
-            if(this.scene.settings.data == 2){
-                this.player.setFrame(2);
-            }
         }
         else{
             this.player.setVelocityX(0);
@@ -685,15 +680,9 @@ BubbleBurst.Game.prototype = {
 
         if (cursors.up.isDown){
             this.player.setVelocityY(-300);
-            if(this.scene.settings.data == 2){
-                this.player.setFrame(3);
-            }
         }
         else if(cursors.down.isDown){
             this.player.setVelocityY(300);
-            if(this.scene.settings.data == 2){
-                this.player.setFrame(0);
-            }
         }
         else{
             this.player.setVelocityY(0);
