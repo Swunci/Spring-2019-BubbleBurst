@@ -21,8 +21,8 @@ BubbleBurst.Preload.prototype = {
 
 
         
-        this.load.tilemapTiledJSON('test', 'assets/tilemaps/level2.json');
-        this.load.image('tiles', 'assets/images/tileset.png');
+        this.load.tilemapTiledJSON('level2', 'assets/tilemaps/level2.json');
+        this.load.image('level2tiles', 'assets/images/tileset.png');
         this.load.spritesheet('player_16', 'assets/images/player_16.png',{ frameWidth: 32, frameHeight: 32 });
     },
     create: function(){

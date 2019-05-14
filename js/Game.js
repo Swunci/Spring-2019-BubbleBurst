@@ -143,7 +143,6 @@ BubbleBurst.Game.prototype = {
 
             - Sound
             {
-                - Shooting
                 - Background music
                 - Winning music
                 - Death music
@@ -158,40 +157,51 @@ BubbleBurst.Game.prototype = {
             - Other stuff to do
             {
                 -Create a system for levels
-                -Front page could look better
             }
             
         */
 
-        /////////////////////////////////// Global variables ///////////////////////////////////////////
+        /////////////////////////////////// Level creation  ///////////////////////////////////////////
 
-        this.physics.world.setBounds(0,0, 1920 * 2, 1920 * 2);
-        this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
-        this.cameras.main.setZoom(.95);
-        
-        this.map = this.make.tilemap({key : 'level1'});
-        //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
-        var tiles = this.map.addTilesetImage('a', 'level1tiles');
-        this.background = this.map.createStaticLayer('background', tiles);
-        this.floor = this.map.createStaticLayer('Floor', tiles);
-        this.background2 = this.map.createStaticLayer('background2', tiles);
-        this.walls = this.map.createStaticLayer('Walls', tiles);
+        // this.scene.settings.data contains the level number
 
-        this.map.setCollisionBetween(1, 15000, true, 'Walls');
+        // This is level 1
+        if (this.scene.settings.data == 1) {
+            this.physics.world.setBounds(0,0, 1920 * 2, 1920 * 2);
+            this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
+            this.cameras.main.setZoom(.95);
 
 
-        this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
-        this.minimap.setBounds(0,0, 1920 * 2, 1920 * 2);
-        // minimap no longer transparent when using a tiled map
-        // this.mini.alpha doesn't do anything
-        this.minimap.alpha = .30;
-    
-        ////////////////////////////////// Player variables and stuff here //////////////////////////////
-        this.bubblesKiled = 0;
-        this.numOfBigBubbles = 20;
-        this.enemies = this.numOfBigBubbles * 4;
+            this.map = this.make.tilemap({key : 'level1'});
+            //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+            var tiles = this.map.addTilesetImage('a', 'level1tiles');
+            this.background = this.map.createStaticLayer('background', tiles);
+            this.floor = this.map.createStaticLayer('Floor', tiles);
+            this.background2 = this.map.createStaticLayer('background2', tiles);
+            this.walls = this.map.createStaticLayer('Walls', tiles);
 
-        this.player = this.physics.add.sprite(1920, 1080, 'player');
+            this.map.setCollisionBetween(1, 15000, true, 'Walls');
+            this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
+            this.minimap.setBounds(0,0, 1920 * 2, 1920 * 2);
+            this.bubblesKiled = 0;
+            this.numOfBigBubbles = 20;
+            this.enemies = this.numOfBigBubbles * 4;
+
+            // Spawn sprite at x, y location
+            this.player = this.physics.add.sprite(1920, 1080, 'player');
+        }
+
+        // Level 2 loading map and setting world/camera bounds
+        else if (this.scene.settings.data == 2) {
+
+        }
+        // Level 3
+        else if (this.scene.settings.data == 3) {
+
+        }
+
+        ////////////////////////// Static variables //////////////////////////////
+     
         this.player.setCollideWorldBounds(true);
         this.fullHealth = 100;
         this.player.health = this.fullHealth;
@@ -245,30 +255,35 @@ BubbleBurst.Game.prototype = {
         //var rect3 = new Phaser.Geom.Rectangle(1050, 3000, 1850, 600);
         //  Randomly position the sprites within the rectangle
 
-
-        for (var i = 0; i < this.numOfBigBubbles; i++) {
-            // Give higher chance for spawning in the bigger room
-            var counter = Phaser.Math.Between(0,3);
-            var bubble = this.bigBubbles.get().setActive(true).setVisible(true);
-            if (counter % 3 == 0) {
-                // Middle room
-                bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(1440, 2040));
+        if (this.scene.settings.data == 1) {
+            for (var i = 0; i < this.numOfBigBubbles; i++) {
+                // Give higher chance for spawning in the bigger room
+                var counter = Phaser.Math.Between(0,3);
+                var bubble = this.bigBubbles.get().setActive(true).setVisible(true);
+                if (counter % 3 == 0) {
+                    // Middle room
+                    bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(1440, 2040));
+                }
+                else if (counter % 3 == 1) {
+                    // top room
+                    bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(60, 600));
+                }
+                else {
+                    // lab
+                    bubble.spawn(Phaser.Math.Between(1050, 1850), Phaser.Math.Between(3000, 3600));
+                }
+                this.randomizeDirection(bubble, this.bigBubbles.size, this.bigBubbles.speed);
             }
-            else if (counter % 3 == 1) {
-                // top room
-                bubble.spawn(Phaser.Math.Between(60, 3500), Phaser.Math.Between(60, 600));
-            }
-            else {
-                // lab
-                bubble.spawn(Phaser.Math.Between(1050, 1850), Phaser.Math.Between(3000, 3600));
-            }
-            this.randomizeDirection(bubble, this.bigBubbles.size, this.bigBubbles.speed);
         }
-        
-        /*this.bigBubbles.children.iterate(function (child) {
-            this.randomizeDirection(child, this.bigBubbles.size, this.bigBubbles.speed);
-        }, this);*/
 
+        // Level 2 big bubble spawn locations
+        else if (this.scene.settings.data == 2) {
+
+        }
+        // Level 3 big bubble spawn locations
+        else if (this.scene.settings.data == 3) {
+
+        }
 
         /////////////////////        Colliders              ////////////////////
         this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);

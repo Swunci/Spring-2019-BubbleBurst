@@ -26,8 +26,8 @@ BubbleBurst.Level2.prototype = {
         this.cameras.main.setBounds(0, 0, 1920, 960);
         
 
-        this.map2 = this.make.tilemap({key : 'test'});
-        var tiles2 = this.map2.addTilesetImage('tiles2', 'tiles');
+        this.map2 = this.make.tilemap({key : 'level2'});
+        var tiles2 = this.map2.addTilesetImage('tiles2', 'level2tiles');
         this.floor = this.map2.createStaticLayer('floor', tiles2);
         this.wall = this.map2.createStaticLayer('wall', tiles2);
         //this.cameras.main.setZoom(0.95);
