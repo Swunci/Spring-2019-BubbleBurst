@@ -169,9 +169,9 @@ BubbleBurst.Game.prototype = {
         this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
         this.cameras.main.setZoom(.95);
         
-        this.map = this.make.tilemap({key : 'testmap'});
+        this.map = this.make.tilemap({key : 'level1'});
         //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
-        var tiles = this.map.addTilesetImage('a', 'gameTiles');
+        var tiles = this.map.addTilesetImage('a', 'level1tiles');
         this.background = this.map.createStaticLayer('background', tiles);
         this.floor = this.map.createStaticLayer('Floor', tiles);
         this.background2 = this.map.createStaticLayer('background2', tiles);
