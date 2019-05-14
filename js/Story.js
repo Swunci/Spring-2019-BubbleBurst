@@ -14,7 +14,7 @@ BubbleBurst.Story.prototype = {
                 `Our main character, Toxic, is a mad scientist who has recently been experimenting
                 \nwith some new chemicals that he had created from previous experiments. These new 
                 \nchemicals he created were very deadly, but he was not satisfied with them, so he
-                \nwanted to create an even more toxic solution.In the middle of his experiment, he
+                \nwanted to create an even more toxic solution. In the middle of his experiment, he
                 \naccidently broke a sealed container of the solution and got the solution all over
                 \nthe floor.He went to get some cleaning equipment from the closet and while he was
                 \nlooking through the closet, the solution started bubbling and huge bubbles started

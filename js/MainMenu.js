@@ -69,17 +69,15 @@ BubbleBurst.MainMenu.prototype = {
     },
 
     startLevel1: function(){
-        this.game.level = 1;
-        this.scene.start('Game');
+        this.scene.start('Game', 1);
     },
 
     startLevel2: function(){
-        this.game.level = 2;
-        this.scene.start('Game');
+        this.scene.start('Game', 2);
     },
 
     startLevel3: function(){
-
+        this.scene.start('Game', 3);
     },
 
     showControls: function(){

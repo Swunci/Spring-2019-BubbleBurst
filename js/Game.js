@@ -252,7 +252,6 @@ BubbleBurst.Game.prototype = {
 
             - Sound
             {
-                - Shooting
                 - Background music
                 - Winning music
                 - Death music
@@ -267,19 +266,27 @@ BubbleBurst.Game.prototype = {
             - Other stuff to do
             {
                 -Create a system for levels
-                -Front page could look better
             }
             
         */
 
         /////////////////////////////////// Global variables ///////////////////////////////////////////
+
+    
+        ////////////////////////////////// Player variables and stuff here //////////////////////////////
         
-        ////////////// for level 1
-        if (this.game.level == 1){
+
+        /////////////////////////////////// Level creation  ///////////////////////////////////////////
+
+        // this.scene.settings.data contains the level number
+
+        // This is level 1
+        if (this.scene.settings.data == 1) {
             this.physics.world.setBounds(0,0, 1920 * 2, 1920 * 2);
             this.cameras.main.setBounds(0,0, 1920 * 2, 1920 * 2);
             this.cameras.main.setZoom(.95);
-        
+
+
             this.map = this.make.tilemap({key : 'level1'});
             //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
             var tiles = this.map.addTilesetImage('a', 'level1tiles');
@@ -287,15 +294,20 @@ BubbleBurst.Game.prototype = {
             this.floor = this.map.createStaticLayer('Floor', tiles);
             this.background2 = this.map.createStaticLayer('background2', tiles);
             this.walls = this.map.createStaticLayer('Walls', tiles);
+
+            this.map.setCollisionBetween(1, 15000, true, 'Walls');
             this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
             this.minimap.setBounds(0,0, 1920 * 2, 1920 * 2);
-            // minimap no longer transparent when using a tiled map
-            // this.mini.alpha doesn't do anything
-            this.minimap.alpha = .30;
-            this.map.setCollisionBetween(1, 15000, true, 'Walls');
+            this.bubblesKiled = 0;
+            this.numOfBigBubbles = 20;
+            this.enemies = this.numOfBigBubbles * 4;
+
+            // Spawn sprite at x, y location
+            this.player = this.physics.add.sprite(1920, 1080, 'player');
         }
-        ///////////////////////////////////// LEVEL 2
-        else if (this.game.level == 2){
+        // Level 2 loading map and setting world/camera bounds
+        else if (this.scene.settings.data == 2) {
+
             this.physics.world.setBounds(0, 0, 1920, 960);
             this.cameras.main.setBounds(0, 0, 1920, 960);
             this.cameras.main.setZoom(1);
@@ -308,27 +320,18 @@ BubbleBurst.Game.prototype = {
             this.minimap.setBounds(0,0, 1920, 960);
             this.minimap.alpha = .30;
             this.map.setCollisionBetween(1, 20000, true, 'wall');
-        }
-
-        
-
-
-        
-    
-        ////////////////////////////////// Player variables and stuff here //////////////////////////////
-        this.bubblesKiled = 0;
-        this.numOfBigBubbles = 20;
-        if (this.game.level == 2){
-            this.numOfBigBubbles = 25;
-        }
-        this.enemies = this.numOfBigBubbles * 4;
-
-        if (this.game.level == 1){
-            this.player = this.physics.add.sprite(1920, 1080, 'player');
-        }
-        else if (this.game.level == 2){
+            this.bubblesKiled = 0;
+            this.numOfBigBubbles = 20;
+            this.enemies = this.numOfBigBubbles * 4;
             this.player = this.physics.add.sprite(300, 300, 'player_16');
         }
+        // Level 3
+        else if (this.scene.settings.data == 3) {
+
+        }
+
+        ////////////////////////// Static variables //////////////////////////////
+     
         this.player.setCollideWorldBounds(true);
         this.fullHealth = 100;
         this.player.health = this.fullHealth;
@@ -386,7 +389,7 @@ BubbleBurst.Game.prototype = {
         //var rect3 = new Phaser.Geom.Rectangle(1050, 3000, 1850, 600);
         //  Randomly position the sprites within the rectangle
 
-        if (this.game.level == 1){
+        if (this.scene.settings.data == 1) {
             for (var i = 0; i < this.numOfBigBubbles; i++) {
                 // Give higher chance for spawning in the bigger room
                 var counter = Phaser.Math.Between(0,3);
@@ -406,7 +409,8 @@ BubbleBurst.Game.prototype = {
                 this.randomizeDirection(bubble, this.bigBubbles.size, this.bigBubbles.speed);
             }
         }
-        else if (this.game.level == 2){
+        // Level 2 big bubble spawn locations
+        else if (this.scene.settings.data == 2){
             for (var i = 0; i < this.numOfBigBubbles; i++) {
                 var counter = Phaser.Math.Between(0,3);
                 var bubble = this.mediumBubbles.get().setActive(true).setVisible(true);
@@ -425,11 +429,9 @@ BubbleBurst.Game.prototype = {
                 this.randomizeDirection(bubble, this.mediumBubbles.size, this.mediumBubbles.speed);
             }
         }
-        
-        /*this.bigBubbles.children.iterate(function (child) {
-            this.randomizeDirection(child, this.bigBubbles.size, this.bigBubbles.speed);
-        }, this);*/
+        else if (this.scene.settings.data == 3) {
 
+        }
 
         /////////////////////        Colliders              ////////////////////
         this.playerBigBubbleCollider = this.physics.add.collider(this.player, this.bigBubbles, this.collideBigBubble, null, this);
@@ -445,7 +447,7 @@ BubbleBurst.Game.prototype = {
         ////////////////////       Bullet varibles/mechanics        /////////////////
 
         this.playerBullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
-        if (this.game.level == 2){
+        if (this.scene.settings.data == 2){
             this.playerBullets = this.physics.add.group({ classType: SBullet, runChildUpdate: true });
         }
         this.shoot = true;
