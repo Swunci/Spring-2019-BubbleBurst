@@ -321,13 +321,35 @@ BubbleBurst.Game.prototype = {
             this.minimap.alpha = .30;
             this.map.setCollisionBetween(1, 20000, true, 'wall');
             this.bubblesKiled = 0;
-            this.numOfBigBubbles = 15;
+            this.numOfBigBubbles = 26;
             this.enemies = this.numOfBigBubbles * 4;
 
             this.player = this.physics.add.sprite(300, 300, 'player_16');
         }
         // Level 3
         else if (this.scene.settings.data == 3) {
+
+            this.physics.world.setBounds(0,0, 1920 , 1920);
+            this.cameras.main.setBounds(0,0, 1920, 1920);
+            this.cameras.main.setZoom(.95);
+
+
+            this.map = this.make.tilemap({key : 'level3'});
+            //the first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+            var tiles = this.map.addTilesetImage('c', 'level1tiles');
+            this.floor = this.map.createStaticLayer('floor', tiles);
+            this.walls = this.map.createStaticLayer('wall', tiles);
+
+            this.map.setCollisionBetween(1, 15000, true, 'wall');
+            this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
+            this.minimap.setBounds(0,0, 1920, 1920);
+            this.bubblesKiled = 0;
+            this.numOfBigBubbles = 40;
+            this.enemies = this.numOfBigBubbles * 4;
+
+            // Spawn sprite at x, y location
+            this.player = this.physics.add.sprite(960, 960, 'player');
+
 
         }
 
@@ -347,6 +369,9 @@ BubbleBurst.Game.prototype = {
         else if (this.scene.settings.data == 2){
             this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/7.5), 'healthbar').setScrollFactor(0); 
             this.healthbar.displayHeight = 2/3 * this.healthbar.height;
+        }
+        else{
+            this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0); 
         }
         //this.ammoSprite = this.physics.add.sprite(100, window.ineerHeight/(10/9.5), 'bullet').setSc
         if (this.cameras.main.deadzone)
@@ -376,10 +401,10 @@ BubbleBurst.Game.prototype = {
         this.smallBubbles.size = 16;
         this.smallestBubbles.size = 8;
 
-        this.bigBubbles.speed = 300;
-        this.mediumBubbles.speed = 400;
-        this.smallBubbles.speed = 500;
-        this.smallestBubbles.speed = 550;
+        this.bigBubbles.speed = 250;
+        this.mediumBubbles.speed = 300;
+        this.smallBubbles.speed = 400;
+        this.smallestBubbles.speed = 500;
 
         this.bigBubbles.damage = 20;
         this.mediumBubbles.damage = 5;
@@ -418,7 +443,7 @@ BubbleBurst.Game.prototype = {
         // Level 2 big bubble spawn locations
         else if (this.scene.settings.data == 2){
             for (var i = 0; i < this.numOfBigBubbles; i++) {
-                var counter = Phaser.Math.Between(0,3);
+                var counter = Phaser.Math.Between(0,2);
                 var bubble = this.mediumBubbles.get().setActive(true).setVisible(true);
                 if (counter % 3 == 0) {
                     // top left room
@@ -436,7 +461,23 @@ BubbleBurst.Game.prototype = {
             }
         }
         else if (this.scene.settings.data == 3) {
-
+            for (var i = 0; i < this.numOfBigBubbles; i++) {
+                var counter = Phaser.Math.Between(0,3);
+                var bubble = this.mediumBubbles.get().setActive(true).setVisible(true);
+                if (counter % 3 == 0) {
+                    // first column
+                    bubble.spawn(Phaser.Math.Between(32, 128), Phaser.Math.Between(256, 448));
+                }
+    //            else if (counter % 3 == 1) {
+     //               // second column
+      //              bubble.spawn(Phaser.Math.Between(80, 1800), Phaser.Math.Between(688, 896));
+      //          } 
+       //         else {
+                    // third column
+       //             bubble.spawn(Phaser.Math.Between(1344, 1800), Phaser.Math.Between(80, 320));
+        //        }
+                this.randomizeDirection(bubble, this.mediumBubbles.size, this.mediumBubbles.speed);
+            }
         }
 
         /////////////////////        Colliders              ////////////////////
@@ -742,6 +783,9 @@ BubbleBurst.Game.prototype = {
         }
         else if (this.scene.settings.data == 2){
             this.spawnSmallestBubbles(bubble.x, bubble.y);
+        }
+        else{
+            this.bubbleskilled++;
         }
     },
 
