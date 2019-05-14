@@ -23,5 +23,5 @@ BubbleBurst.game.scene.add('Story', BubbleBurst.Story);
 BubbleBurst.game.scene.add('Esc', BubbleBurst.Esc);
 BubbleBurst.game.scene.add('GameOver', BubbleBurst.GameOver);
 BubbleBurst.game.scene.add('Win', BubbleBurst.Win);
-BubbleBurst.game.scene.add('Level2', BubbleBurst.Level2);
+//BubbleBurst.game.scene.add('Level2', BubbleBurst.Level2);
 BubbleBurst.game.scene.start('Preload');

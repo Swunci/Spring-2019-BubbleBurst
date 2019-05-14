@@ -51,7 +51,7 @@ BubbleBurst.Esc.prototype = {
     },
     back:function(){
         this.game.scene.resume('Game');
-        
+    
         this.scene.stop();
     }
 };

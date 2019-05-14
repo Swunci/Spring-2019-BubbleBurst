@@ -10,7 +10,7 @@ var SBullet = new Phaser.Class({
 
     function SBullet (scene) {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sbullet');
-        this.speed = 1;
+        this.speed = 0.4;
         this.born = 0;
         this.xSpeed = 0;
         this.ySpeed = 0;
@@ -23,26 +23,50 @@ var SBullet = new Phaser.Class({
         this.setPosition(shooter.x, shooter.y);
 
         if (direction === 'up') {
-            this.xSpeed = 0;
-            this.ySpeed = -this.speed;
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1){
+                this.xSpeed = 0.2 * Phaser.Math.Between(1, 5);
+            }
+            else{
+                this.xSpeed = -0.2 * Phaser.Math.Between(1, 5);
+            }
+            this.ySpeed = -this.speed * Phaser.Math.Between(1, 5);
             this.rotation = 0;
             this.body.setSize(this.width, this.height, true);
         }
         else if (direction == 'down') {
-            this.xSpeed = 0;
-            this.ySpeed = this.speed;
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1){
+                this.xSpeed = 0.2 * Phaser.Math.Between(1, 5);
+            }
+            else{
+                this.xSpeed = -0.2 * Phaser.Math.Between(1, 5);
+            }
+            this.ySpeed = this.speed * Phaser.Math.Between(1, 5);
             this.rotation = 3.14159;
             this.body.setSize(this.width, this.height, true);
         }
         else if (direction == 'left') {
-            this.xSpeed = -this.speed;
-            this.ySpeed = 0;
+            this.xSpeed = -this.speed * Phaser.Math.Between(1, 5);
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1){
+                this.ySpeed = 0.2 * Phaser.Math.Between(1, 5);
+            }
+            else{
+                this.ySpeed = -0.2 * Phaser.Math.Between(1, 5);
+            }
             this.rotation = -1.5708;
             this.body.setSize(this.height, this.width, true);
         }
         else {
-            this.xSpeed = this.speed;
-            this.ySpeed = 0;
+            this.xSpeed = this.speed * Phaser.Math.Between(1, 5);
+            var rand = Phaser.Math.Between(1, 2);
+            if (rand == 1){
+                this.ySpeed = 0.2 * Phaser.Math.Between(1, 5);
+            }
+            else{
+                this.ySpeed = -0.2 * Phaser.Math.Between(1, 5);
+            }
             this.rotation = 1.5708;
             this.body.setSize(this.height, this.width, true);
         }
@@ -91,9 +115,12 @@ class SmallestBubble extends Phaser.Physics.Arcade.Sprite {
 
 BubbleBurst.Level2.prototype = {
     create: function(){
+        // set the level to 2 \\
+        this.game.level = 2;
+
         this.physics.world.setBounds(0, 0, 1920, 960);
         this.cameras.main.setBounds(0, 0, 1920, 960);
-        
+        this.cameras.main.setZoom(1);
 
         this.map2 = this.make.tilemap({key : 'level2'});
         var tiles2 = this.map2.addTilesetImage('tiles2', 'tiles');
@@ -105,7 +132,7 @@ BubbleBurst.Level2.prototype = {
 
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
         this.bubblesKilled = 0;
-        this.numOfBigBubbles = 5;
+        this.numOfBigBubbles = 20;
         this.enemies = this.numOfBigBubbles * 4;
 
         this.player = this.physics.add.sprite(300, 300, 'player_16');
@@ -312,6 +339,9 @@ BubbleBurst.Level2.prototype = {
             }
         }, this);
 
+
+        this.EscKey = this.input.keyboard.addKey('ESC');
+
     },
     randomizeDirection : function(bubble, size, speed) {
         var counter = Phaser.Math.Between(0,3);
@@ -334,8 +364,27 @@ BubbleBurst.Level2.prototype = {
 
     update: function(){
         cursors = this.input.keyboard.createCursorKeys();
-    
-        if (cursors.left.isDown){ 
+
+        if (this.bubblesKiled == this.enemies) {
+            this.win();
+            this.input.keyboard.resetKeys();
+        }
+
+        
+        // the player is dead
+        if (this.player.health <= 0){
+            this.gameOver();
+            this.input.keyboard.resetKeys();
+        }
+
+        // Add event handler to ESC key
+        if (this.EscKey.isDown){
+            this.scene.launch('Esc');
+            this.scene.pause('Level2');
+            this.EscKey.isDown = false;
+        }
+        
+        if (cursors.left.isDown){
             this.player.setVelocityX(-300);
             this.player.setFrame(1);
         }
@@ -469,7 +518,7 @@ BubbleBurst.Level2.prototype = {
     
     gameOver : function() {
         this.cameras.main.fade(2000,0,0,0);
-        this.minimap.fade(2000,0,0,0);
+        //this.minimap.fade(2000,0,0,0);
         this.time.delayedCall(1900, function() {
             this.scene.start('GameOver');
         }, [], this);
