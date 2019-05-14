@@ -310,7 +310,7 @@ BubbleBurst.Game.prototype = {
 
             this.physics.world.setBounds(0, 0, 1920, 960);
             this.cameras.main.setBounds(0, 0, 1920, 960);
-            this.cameras.main.setZoom(1);
+            this.cameras.main.setZoom(1.5);
     
             this.map = this.make.tilemap({key : 'level2'});
             var tiles2 = this.map.addTilesetImage('tiles2', 'tiles');
@@ -321,8 +321,9 @@ BubbleBurst.Game.prototype = {
             this.minimap.alpha = .30;
             this.map.setCollisionBetween(1, 20000, true, 'wall');
             this.bubblesKiled = 0;
-            this.numOfBigBubbles = 20;
+            this.numOfBigBubbles = 15;
             this.enemies = this.numOfBigBubbles * 4;
+
             this.player = this.physics.add.sprite(300, 300, 'player_16');
         }
         // Level 3
@@ -340,8 +341,13 @@ BubbleBurst.Game.prototype = {
 
         this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
         this.minimap.startFollow(this.player, true, 0.05, 0.05);
-        this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0); 
-
+        if (this.scene.settings.data == 1){
+            this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/9.5), 'healthbar').setScrollFactor(0); 
+        }
+        else if (this.scene.settings.data == 2){
+            this.healthbar = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/(10/7.5), 'healthbar').setScrollFactor(0); 
+            this.healthbar.displayHeight = 2/3 * this.healthbar.height;
+        }
         //this.ammoSprite = this.physics.add.sprite(100, window.ineerHeight/(10/9.5), 'bullet').setSc
         if (this.cameras.main.deadzone)
         {
@@ -619,14 +625,14 @@ BubbleBurst.Game.prototype = {
         }
 
         if (cursors.left.isDown){ 
-            if(this.game.level == 2){
+            if(this.scene.settings.data == 2){
                 this.player.setFrame(1);
             }
             this.player.setVelocityX(-300);
         }
         else if(cursors.right.isDown){
             this.player.setVelocityX(300);
-            if(this.game.level == 2){
+            if(this.scene.settings.data == 2){
                 this.player.setFrame(2);
             }
         }
@@ -636,13 +642,13 @@ BubbleBurst.Game.prototype = {
 
         if (cursors.up.isDown){
             this.player.setVelocityY(-300);
-            if(this.game.level == 2){
+            if(this.scene.settings.data == 2){
                 this.player.setFrame(3);
             }
         }
         else if(cursors.down.isDown){
             this.player.setVelocityY(300);
-            if(this.game.level == 2){
+            if(this.scene.settings.data == 2){
                 this.player.setFrame(0);
             }
         }
@@ -731,10 +737,10 @@ BubbleBurst.Game.prototype = {
         bubble.destroy();
         bullet.destroy();
         this.sound.play('bubblepop');
-        if (this.game.level == 1){
+        if (this.scene.settings.data == 1){
             this.bubblesKiled++;
         }
-        else if (this.game.level == 2){
+        else if (this.scene.settings.data == 2){
             this.spawnSmallestBubbles(bubble.x, bubble.y);
         }
     },
@@ -743,7 +749,7 @@ BubbleBurst.Game.prototype = {
         bubble.destroy();
         bullet.destroy();
         this.sound.play('bubblepop');
-        this.bubblesKilled++;
+        this.bubblesKiled++;
     },
 
     canShoot : function() {
