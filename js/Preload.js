@@ -25,6 +25,7 @@ BubbleBurst.Preload.prototype = {
         this.load.image('tiles', 'assets/images/tileset.png');
         this.load.spritesheet('player_16', 'assets/images/player_16.png',{ frameWidth: 32, frameHeight: 32 });
         this.load.image('sbullet', 'assets/images/sbullet.png');
+        this.load.audio('level2', 'assets/sounds/Etude in F minor.wav');
     },
     create: function(){
         this.scene.start('MainMenu');

@@ -307,7 +307,9 @@ BubbleBurst.Game.prototype = {
         }
         // Level 2 loading map and setting world/camera bounds
         else if (this.scene.settings.data == 2) {
-
+            this.game.music2 = this.sound.add('level2');
+            this.game.music2.setLoop(true);
+            this.game.music2.play();
             this.physics.world.setBounds(0, 0, 1920, 960);
             this.cameras.main.setBounds(0, 0, 1920, 960);
             this.cameras.main.setZoom(1.5);
@@ -818,12 +820,14 @@ BubbleBurst.Game.prototype = {
     gameOver : function() {
         this.cameras.main.fade(2000,0,0,0);
         this.minimap.fade(2000,0,0,0);
+        this.game.music2.stop();
         this.time.delayedCall(1900, function() {
             this.scene.start('GameOver');
         }, [], this);
     },
 
     win : function() {
+        this.game.music2.stop();
         this.scene.start('Win');
     }
     
