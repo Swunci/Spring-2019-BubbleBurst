@@ -14,8 +14,13 @@ BubbleBurst.Preload.prototype = {
         this.load.image('bullet', 'assets/images/bullet.png');
         this.load.image('healthbar', 'assets/images/healthbar.png');
         this.load.image('bg', 'assets/images/testbg.png');
-        this.load.tilemapTiledJSON('testmap', 'assets/tilemaps/testmap.json');
-        this.load.image('gameTiles', 'assets/images/housetiles4x.png');
+        this.load.tilemapTiledJSON('level1', 'assets/tilemaps/testmap.json');
+        this.load.image('level1tiles', 'assets/images/housetiles4x.png');
+        this.load.audio('bubblepop', 'assets/sounds/bubblepop1.mp3');
+        this.load.audio('shootingsound', 'assets/sounds/shootingsound1.mp3');
+
+
+        
         this.load.tilemapTiledJSON('test', 'assets/tilemaps/level2.json');
         this.load.image('tiles', 'assets/images/tileset.png');
         this.load.spritesheet('player_16', 'assets/images/player_16.png',{ frameWidth: 32, frameHeight: 32 });
