@@ -73,7 +73,7 @@ BubbleBurst.MainMenu.prototype = {
     },
 
     startLevel2: function(){
-
+        this.scene.start('Level2');
     },
 
     startLevel3: function(){
