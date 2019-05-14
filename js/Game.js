@@ -135,7 +135,6 @@ BubbleBurst.Game.prototype = {
         /*
             - Graphics
             {
-                -Basically need to start making stuff in GIMP
                 -Reload Animation
                 -Need level maps
                 -Character sprite
@@ -149,13 +148,11 @@ BubbleBurst.Game.prototype = {
                 - Winning music
                 - Death music
                 - Taking damage
-                - Popping bubbles
             }
         
             - Bugs?
             {
-                -Some parts of the wall can be passed through for some reason
-                -Bullets don't collide with the wall
+                -Minimap no longer transparent when using a tiled map
             }
             
             - Other stuff to do
@@ -185,7 +182,9 @@ BubbleBurst.Game.prototype = {
 
         this.minimap = this.cameras.add(20, 20, 250, 250).setZoom(0.1);
         this.minimap.setBounds(0,0, 1920 * 2, 1920 * 2);
-        this.minimap.alpha = .75;
+        // minimap no longer transparent when using a tiled map
+        // this.mini.alpha doesn't do anything
+        this.minimap.alpha = .30;
     
         ////////////////////////////////// Player variables and stuff here //////////////////////////////
         this.bubblesKiled = 0;
@@ -234,8 +233,8 @@ BubbleBurst.Game.prototype = {
         this.smallBubbles.speed = 500;
 
         this.bigBubbles.damage = 20;
-        this.mediumBubbles.damage = 10;
-        this.smallBubbles.damage = 5;
+        this.mediumBubbles.damage = 5;
+        this.smallBubbles.damage = 2;
 
 
         //////////////////////      Bubble Spawn Location       /////////////////////////////////
@@ -324,6 +323,7 @@ BubbleBurst.Game.prototype = {
                 if (bullet) {
 
                     bullet.fire(this.player, direction);
+                    this.sound.play('shootingsound');
 
                     // Add collision between bubbles and bullet and a callback function to handle what happens
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
@@ -354,6 +354,7 @@ BubbleBurst.Game.prototype = {
                 if (bullet) {
                     bullet.rotation = 0;
                     bullet.fire(this.player, direction);
+                    this.sound.play('shootingsound');
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
@@ -377,7 +378,8 @@ BubbleBurst.Game.prototype = {
                 var bullet = this.playerBullets.get().setActive(true).setVisible(true);
                 var direction = 'left';
                 if (bullet) {
-                    bullet.fire(this.player, direction);
+                    bullet.fire(this.player, direction, this);
+                    this.sound.play('shootingsound');
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
@@ -402,6 +404,7 @@ BubbleBurst.Game.prototype = {
                 var direction = 'right';
                 if (bullet) {
                     bullet.fire(this.player, direction);
+                    this.sound.play('shootingsound');
                     this.physics.add.collider(this.bigBubbles, bullet, this.collideBulletBigBubble, null, this);
                     this.physics.add.collider(this.mediumBubbles, bullet, this.collideBulletMediumBubble, null, this);
                     this.physics.add.collider(this.smallBubbles, bullet, this.collideBulletSmallBubble, null, this);
@@ -481,7 +484,7 @@ BubbleBurst.Game.prototype = {
             this.player.health -= this.mediumBubbles.damage;
             this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
             this.turnInvincible();
-            this.time.delayedCall(this.invincibilityTime/2, this.turnMortal, [], this);
+            this.time.delayedCall(this.invincibilityTime, this.turnMortal, [], this);
         }
     },
 
@@ -490,7 +493,7 @@ BubbleBurst.Game.prototype = {
             this.player.health -= this.smallBubbles.damage;
             this.healthbar.displayWidth = this.healthbar.width * this.player.health / this.fullHealth;
             this.turnInvincible();
-            this.time.delayedCall(this.invincibilityTime/2, this.turnMortal, [], this);
+            this.time.delayedCall(this.invincibilityTime, this.turnMortal, [], this);
         }
     },
 
